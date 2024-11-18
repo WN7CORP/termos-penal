@@ -1,0 +1,676 @@
+<html><head><base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicionário Jurídico - Principais Termos</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #141414;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 30px;
+            position: relative;
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 36px;
+            color: #ff3333;
+            text-align: center;
+        }
+
+        p {
+            font-size: 18px;
+            color: #b0b0b0;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+
+        .term-count {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+
+        .search-container {
+            position: relative;
+            width: 90%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            margin: 0;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 25px;
+            font-size: 16px;
+            background-color: #333;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .search-box:focus {
+            border-color: #ff3333;
+            outline: none;
+            transform: scale(1.05);
+        }
+
+        .search-box::placeholder {
+            color: #aaaaaa;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            right: 0;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #141414;
+            display: none;
+            z-index: 10;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+            color: #ff3333;
+            font-size: 15px;
+        }
+
+        .suggestion-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .suggestion-item b {
+            color: #ff6666;
+        }
+
+        .suggestion-item:hover {
+            background-color: #333;
+        }
+
+        .result {
+            display: none;
+            font-size: 24px;
+            color: #ffde99;
+            text-align: left;
+            padding: 15px 25px;
+            max-width: 700px;
+            margin: 15px auto;
+            line-height: 1.6;
+            background: rgba(51, 51, 51, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #ff3333;
+        }
+
+        .term-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            color: #ff3333;
+            padding: 0 15px;
+            border-bottom: 2px solid rgba(255, 51, 51, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .term-details {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            padding: 10px 15px;
+        }
+
+        .term-example {
+            font-size: 15px;
+            color: #ff4444;
+            margin: 10px 15px;
+            padding: 12px;
+            background: rgba(255, 51, 51, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #ff4444;
+        }
+
+        .term-example-title {
+            font-weight: bold;
+            color: #ff4444;
+            margin-bottom: 5px;
+        }
+
+        .top-searches {
+            width: 90%;
+            margin: 15px auto;
+            padding: 15px;
+            background: rgba(51, 51, 51, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid #ff3333;
+            text-align: center;
+        }
+
+        .top-searches h2 {
+            color: #ff3333;
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .top-term {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            margin: 8px auto;
+            max-width: 350px;
+            background: rgba(255, 51, 51, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .top-term:hover {
+            background: rgba(255, 51, 51, 0.2);
+            transform: translateX(5px);
+        }
+
+        .top-term-name {
+            color: #e0e0e0;
+            font-size: 15px;
+        }
+
+        .top-term-views {
+            color: #ff3333;
+            font-size: 12px;
+        }
+
+        .available-terms {
+            width: 90%;
+            margin: 20px auto;
+            padding: 15px;
+            background: rgba(51, 51, 51, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid #ff3333;
+        }
+
+        .available-terms h2 {
+            color: #ff3333;
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .terms-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .letter-section {
+            margin-bottom: 20px;
+        }
+
+        .letter-header {
+            color: #ff3333;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 51, 51, 0.3);
+        }
+
+        .letter-terms {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .term-item {
+            padding: 8px 12px;
+            background: rgba(255, 51, 51, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+        }
+
+        .term-item:hover {
+            background: rgba(255, 51, 51, 0.2);
+            transform: translateX(5px);
+        }
+
+        .term-item.hidden {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+                padding: 0 15px;
+                margin-top: 40px;
+            }
+
+            p {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+
+            .search-container {
+                width: 90%; 
+                margin: 0 auto;
+            }
+
+            .search-box {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .term-title {
+                font-size: 24px;
+                padding: 0 15px;
+            }
+
+            .term-details {
+                font-size: 16px;
+                padding: 10px 15px;
+                line-height: 1.6;
+            }
+
+            .term-example {
+                font-size: 15px;
+                margin: 10px 15px;
+                padding: 12px;
+            }
+
+            .top-searches {
+                width: 90%;
+                margin: 15px auto;
+            }
+
+            .top-term {
+                padding: 12px;
+                margin: 8px auto;
+            }
+
+            .top-term-name {
+                font-size: 15px;
+            }
+
+            dotlottie-player {
+                width: 100px !important;
+                height: 100px !important;
+            }
+
+            .suggestions {
+                max-height: 180px;
+            }
+
+            .suggestion-item {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .letter-terms {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .letter-header {
+                font-size: 20px;
+            }
+
+            .term-item {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .search-box {
+                font-size: 14px;
+            }
+
+            .term-title {
+                font-size: 20px;
+            }
+
+            .term-details {
+                font-size: 14px;
+            }
+
+            .term-example {
+                font-size: 13px;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+</head>
+<body>
+    <div class="term-count" id="term-count"></div>
+    <h1>Dicionário Penal</h1>
+    <p>Digite um termo jurídico:</p>
+    
+    <div class="search-container">
+        <input type="text" class="search-box" placeholder="Digite um termo jurídico...">
+        <div class="suggestions"></div>
+    </div>
+    <div style="margin: 20px auto;">
+        <dotlottie-player src="https://lottie.host/99d829d6-535e-4bef-96ca-b52e4126f4bf/EZd8WNdu5h.json" background="transparent" speed="1" style="width: 120px; height: 120px;" loop="" autoplay="">
+        </dotlottie-player>
+    </div>
+    <h2>Últimos Termos Pesquisados</h2>
+    <div class="top-searches" id="topSearches"></div>
+    <div id="searchAnimation" style="margin: 20px auto; display: none;">
+        <dotlottie-player src="https://lottie.host/1bffa03c-8914-4d80-af92-e8302c431efa/FF80GvD7b9.json" background="transparent" speed="1" style="width: 120px; height: 120px;" loop="" autoplay="">
+</dotlottie-player>
+    </div>
+    <div class="result"></div>
+    <div class="available-terms">
+        <h2>Termos Disponíveis</h2>
+        <div class="terms-grid" id="availableTerms"></div>
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = '1lix0J2jt72OIfWuDice8CWVterJkgl_QwQ8L7LgxYq8';
+        const API_KEY = 'AIzaSyDIJsUlMXVhd0QZKSUuQTXXgCK9PgtDC-g';
+        const RANGE = 'penal!A:C';  // Assuming columns A, B, C contain Term, Definition, Example
+        
+        async function fetchLegalTerms() {
+            try {
+                const response = await fetch(
+                    `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`
+                );
+                const data = await response.json();
+                
+                if (!data || !data.values) {
+                    console.error('Invalid data format from Google Sheets');
+                    return [];
+                }
+
+                // Skip header row and map data
+                return data.values.slice(1).map(row => ({
+                    term: row[0] || '',
+                    definition: row[1] || '',
+                    example: row[2] || 'Exemplo prático não disponível.'
+                })).filter(item => item.term && item.definition);
+                
+            } catch (error) {
+                console.error('Error loading from Google Sheets:', error);
+                return [];
+            }
+        }
+
+        function removeAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            let viewCounts = JSON.parse(localStorage.getItem('viewCounts')) || {};
+            let topSearches = document.getElementById('topSearches');
+
+            function formatViewCount(count) {
+                if (count >= 1000) {
+                    return (count / 1000).toFixed(1) + 'K';
+                }
+                return count;
+            }
+
+            function updateViewCount(term) {
+                viewCounts[term] = (viewCounts[term] || 0) + 1;
+                localStorage.setItem('viewCounts', JSON.stringify(viewCounts));
+                updateTopSearches();
+            }
+
+            function updateTopSearches() {
+                const sortedTerms = Object.entries(viewCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                const topSearchesHTML = sortedTerms.length > 0 ? 
+                    sortedTerms.map(([term, views], index) => `
+                        <div class="top-term" data-term="${term}">
+                            <span class="top-term-name">${index + 1}. ${term}</span>
+                            <span class="top-term-views">
+                                ${formatViewCount(views)} 
+                                <svg viewBox="0 0 24 24" fill="#ff3333" width="12" height="12">
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                </svg>
+                            </span>
+                        </div>
+                    `).join('') :
+                    '<p style="text-align: center; color: #b0b0b0;">Nenhuma pesquisa ainda...</p>';
+
+                topSearches.innerHTML = `
+                    <h2>Últimos Termos Pesquisados</h2>
+                    ${topSearchesHTML}
+                `;
+                
+                document.querySelectorAll('.top-term').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const term = item.dataset.term;
+                        const termData = legalTerms.find(t => t.term === term);
+                        if (termData) {
+                            searchBox.value = term;
+                            displayResult(termData);
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            }
+
+            const searchBox = document.querySelector('.search-box');
+            const suggestionsContainer = document.querySelector('.suggestions');
+            const resultContainer = document.querySelector('.result');
+            const termCountDisplay = document.getElementById('term-count');
+
+            const legalTerms = await fetchLegalTerms();
+            
+            if (termCountDisplay) {
+                termCountDisplay.innerHTML = `Total de Termos: ${legalTerms.length}`;
+            }
+
+            function displayAvailableTerms() {
+                const termsGrid = document.getElementById('availableTerms');
+                termsGrid.innerHTML = '';
+
+                const groupedTerms = legalTerms
+                    .sort((a, b) => a.term.localeCompare(b.term))
+                    .reduce((acc, term) => {
+                        const firstLetter = term.term.charAt(0).toUpperCase();
+                        if (!acc[firstLetter]) {
+                            acc[firstLetter] = [];
+                        }
+                        acc[firstLetter].push(term);
+                        return acc;
+                    }, {});
+
+                Object.keys(groupedTerms).sort().forEach(letter => {
+                    const letterSection = document.createElement('div');
+                    letterSection.className = 'letter-section';
+                    
+                    const letterHeader = document.createElement('div');
+                    letterHeader.className = 'letter-header';
+                    letterHeader.textContent = letter;
+                    
+                    const termsContainer = document.createElement('div');
+                    termsContainer.className = 'letter-terms';
+                    
+                    groupedTerms[letter].forEach(term => {
+                        const termElement = document.createElement('div');
+                        termElement.className = 'term-item';
+                        termElement.textContent = term.term;
+                        termElement.addEventListener('click', () => {
+                            searchBox.value = term.term;
+                            displayResult(term);
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        });
+                        termsContainer.appendChild(termElement);
+                    });
+                    
+                    letterSection.appendChild(letterHeader);
+                    letterSection.appendChild(termsContainer);
+                    termsGrid.appendChild(letterSection);
+                });
+            }
+
+            searchBox.addEventListener('input', function() {
+                const query = removeAccents(this.value.toLowerCase());
+                suggestionsContainer.innerHTML = '';
+
+                const termItems = document.querySelectorAll('.term-item');
+                termItems.forEach(item => {
+                    const termText = removeAccents(item.textContent.toLowerCase());
+                    if (query.length === 0 || termText.includes(query)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                if (query.length === 0) {
+                    resultContainer.style.display = 'none';
+                    resultContainer.innerHTML = '';
+                    suggestionsContainer.style.display = 'none';
+                    document.querySelector('dotlottie-player').parentElement.style.display = 'block';
+                    document.getElementById('searchAnimation').style.display = 'none';
+                    document.querySelector('h2').style.display = 'block';
+                    document.getElementById('topSearches').style.display = 'block';
+                    document.querySelector('.available-terms').style.display = 'block';
+                    updateTopSearches();
+                    return;
+                }
+
+                const initialAnimation = document.querySelector('dotlottie-player').parentElement;
+                const searchAnimation = document.getElementById('searchAnimation');
+                const topSearchesTitle = document.querySelector('h2');
+                
+                initialAnimation.style.display = 'none';
+                searchAnimation.style.display = 'none';
+
+                topSearchesTitle.style.display = 'none';
+                document.getElementById('topSearches').style.display = 'none';
+
+                const suggestions = legalTerms.filter(item => 
+                    removeAccents(item.term.toLowerCase()).includes(query)
+                );
+
+                if (suggestions.length > 0) {
+                    suggestionsContainer.style.display = 'block';
+                    suggestions.forEach(item => {
+                        const highlightedItem = item.term.replace(new RegExp(query, 'gi'), (match) => `<b>${match}</b>`);
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.setAttribute('class', 'suggestion-item');
+                        suggestionItem.innerHTML = highlightedItem;
+                        suggestionsContainer.appendChild(suggestionItem);
+
+                        suggestionItem.addEventListener('click', function() {
+                            searchBox.value = item.term;
+                            suggestionsContainer.style.display = 'none';
+                            displayResult(item);
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        });
+                    });
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+
+                // Always ensure available terms are visible
+                document.querySelector('.available-terms').style.display = 'block';
+            });
+
+            searchBox.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    suggestionsContainer.style.display = 'none';
+                    const searchValue = removeAccents(this.value.toLowerCase());
+                    const termFound = legalTerms.find(item => 
+                        removeAccents(item.term.toLowerCase()) === searchValue
+                    );
+                    if (termFound) {
+                        displayResult(termFound);
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+
+            function displayResult(termItem) {
+                const initialAnimation = document.querySelector('dotlottie-player').parentElement;
+                const searchAnimation = document.getElementById('searchAnimation');
+                const topSearchesTitle = document.querySelector('h2');
+                
+                initialAnimation.style.display = 'none';
+                searchAnimation.style.display = 'block';
+                
+                if (termItem.term.trim() && termItem.definition) {
+                    topSearchesTitle.style.display = 'none';
+                    document.getElementById('topSearches').style.display = 'none';
+                    updateViewCount(termItem.term);
+
+                    resultContainer.innerHTML = `
+                        <div class="term-title">${termItem.term}:</div>
+                        <div class="term-details">${termItem.definition}</div>
+                        <div class="term-example">
+                            <div class="term-example-title">Exemplo Prático:</div>
+                            ${termItem.example}
+                        </div>`;
+
+                    resultContainer.style.display = 'block';
+                    // Always ensure available terms are visible
+                    document.querySelector('.available-terms').style.display = 'block';
+                } else {
+                    resultContainer.style.display = 'none';
+                    topSearchesTitle.style.display = 'block';
+                    document.getElementById('topSearches').style.display = 'block';
+                    document.querySelector('.available-terms').style.display = 'block';
+                }
+            }
+
+            displayAvailableTerms();
+            updateTopSearches();
+        });
+    </script>
+
+</body></html>
